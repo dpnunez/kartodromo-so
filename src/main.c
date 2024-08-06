@@ -11,12 +11,17 @@ int main() {
     inicializa_kartodromo(&kartodromo);
     imprime_kartodromo(&kartodromo);
     
-    // 3. Logia de chegada de pilotos/grupos
+    // 2. Logia de chegada de grupos
+    for (int i = 0; i < NUM_GRUPOS; i++) {
+        int num_pilotos = 5 + rand() % 11; // Gera um número entre 5 e 15
+        printf("\nGrupo %d chegando com %d pilotos\n", i + 1, num_pilotos);
 
-    // 2. Defini e inicia pilotos
+        // 3. Chegada de pilotos
+        chegada_grupo(&kartodromo, num_pilotos);
+    }
 
 
-    // 4. Destroi pilotos e katodromo
+    // 3. Destroi pilotos e katodromo
     destroi_kartodromo(&kartodromo);
 
     return 0; 
