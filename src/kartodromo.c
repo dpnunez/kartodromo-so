@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h> // Para a função sleep
 
 void inicializa_kartodromo(Kartodromo *k) {
     k->karts_disponiveis = NUM_KARTS;
@@ -24,20 +25,48 @@ void imprime_kartodromo(Kartodromo *k) {
     printf("Disponiveis : Karts: %d, Capacetes: %d\n", k->karts_disponiveis, k->capacetes_disponiveis);
 }
 
+void *piloto_thread(void *arg) {
+    Piloto *piloto = (Piloto *)arg;
+
+    printf("Piloto %s, idade: %d está na pista!\n", piloto->nome, piloto->idade);
+
+    // Simulando ação do piloto
+    sleep(1 + rand() % 5); // Simula o tempo de corrida
+
+    printf("Piloto %s, idade: %d saiu da pista!\n", piloto->nome, piloto->idade);
+    return NULL;
+}
+
 void chegada_grupo(Kartodromo *k, int num_pilotos) {
-    Piloto pilotos[num_pilotos];
+    Piloto *pilotos[num_pilotos];
 
     for (int i = 0; i < num_pilotos; i++) {
-        snprintf(pilotos[i].nome, 50, "Piloto%d", i + 1);
-        int idade = (rand() % 17) + 5; // pseudo idade, para garantir que a maior parte dos gerados sejam crianças
-        if (idade > 18) {
-            pilotos[i].idade = (rand() % 33) + 18; // garantir maior diversidade entre adultos
-        } else {
-            pilotos[i].idade = idade;
+        pilotos[i] = malloc(sizeof(Piloto));
+        if (pilotos[i] == NULL) {
+            perror("Erro ao alocar memória para piloto");
+            exit(EXIT_FAILURE);
         }
-        printf("Chegou %s, idade: %d\n", pilotos[i].nome, pilotos[i].idade);
+
+        snprintf(pilotos[i]->nome, 50, "Piloto%d", i + 1);
+        int idade = (rand() % 17) + 5; // Pseudo idade
+        if (idade > 18) {
+            pilotos[i]->idade = (rand() % 33) + 18; // Garantir maior diversidade entre adultos
+        } else {
+            pilotos[i]->idade = idade;
+        }
+
+        // Criação da thread
+        if (pthread_create(&pilotos[i]->thread, NULL, piloto_thread, (void *)pilotos[i]) != 0) {
+            perror("Erro ao criar thread");
+            exit(EXIT_FAILURE);
+        }
     }
 
-    // Apenas para demonstração, imprimindo o estado do kartódromo após a chegada do grupo
+    // Duvida: posso fazer isso? Aguardando que todas as threads do grupo terminem
+    for (int i = 0; i < num_pilotos; i++) {
+        pthread_join(pilotos[i]->thread, NULL); // Espera a thread do piloto terminar
+        free(pilotos[i]); // Libera a memória alocada
+    }
+
     imprime_kartodromo(k);
 }

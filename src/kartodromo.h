@@ -4,11 +4,12 @@
 
 #define NUM_KARTS 10
 #define NUM_CAPACETES 10
-#define NUM_GRUPOS 5 // Número de grupos de pessoas que chegam durante o dia
+#define NUM_GRUPOS 1 // Número de grupos de pessoas que chegam durante o dia
 
 typedef struct {
     char nome[50];
     int idade;
+    pthread_t thread; // Adicionando o identificador da thread
 } Piloto;
 
 typedef struct {
@@ -24,3 +25,4 @@ void inicializa_kartodromo(Kartodromo *k);
 void destroi_kartodromo(Kartodromo *k);
 void chegada_grupo(Kartodromo *k, int num_pilotos);
 void imprime_kartodromo(Kartodromo *k);
+void *piloto_thread(void *arg);
