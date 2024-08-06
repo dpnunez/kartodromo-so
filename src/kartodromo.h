@@ -22,5 +22,6 @@ typedef struct {
 
 void inicializa_kartodromo(Kartodromo *k);
 void destroi_kartodromo(Kartodromo *k);
+void imprime_kartodromo(Kartodromo *k);
 
 #endif // KARTODROMO_H

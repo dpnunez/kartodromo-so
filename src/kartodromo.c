@@ -17,3 +17,9 @@ void destroi_kartodromo(Kartodromo *k) {
     pthread_cond_destroy(&k->cond_karts);
     pthread_cond_destroy(&k->cond_capacetes);
 }
+
+void imprime_kartodromo(Kartodromo *k) {
+    printf("Kartódromo:\n");
+    printf("Karts disponíveis: %d\n", k->karts_disponiveis);
+    printf("Capacetes disponíveis: %d\n", k->capacetes_disponiveis);
+}
