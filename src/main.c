@@ -13,7 +13,7 @@ int main() {
     
     // 2. Logia de chegada de grupos
     for (int i = 0; i < NUM_GRUPOS; i++) {
-        int num_pilotos = 5 + rand() % 11; // Gera um número entre 5 e 15
+        int num_pilotos = 25 + rand() % 11; // Gera um número entre 5 e 15
         printf("\nGrupo %d chegando com %d pilotos\n", i + 1, num_pilotos);
 
         // 3. Chegada de pilotos
