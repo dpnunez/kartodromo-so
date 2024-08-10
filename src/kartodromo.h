@@ -5,7 +5,7 @@
 
 #define NUM_KARTS 10
 #define NUM_CAPACETES 10
-#define NUM_GRUPOS 1 // Número de grupos de pessoas que chegam durante o dia
+#define NUM_GRUPOS 2 // Número de grupos de pessoas que chegam durante o dia
 
 typedef struct {
     char nome[50];
@@ -17,14 +17,14 @@ typedef struct {
 typedef struct {
     int karts_disponiveis;
     int capacetes_disponiveis;
-    // pthread_mutex_t mutex_karts;
-    // pthread_mutex_t mutex_capacetes;
-    // pthread_cond_t cond_karts;
-    // pthread_cond_t cond_capacetes;
+    pthread_mutex_t mutex_karts;
+    pthread_mutex_t mutex_capacetes;
+    pthread_cond_t cond_karts;
+    pthread_cond_t cond_capacetes;
+    int total_recursos_utilizados_karts;
+    int total_recursos_utilizados_capacetes;
     // int total_clientes_atendidos;
     // int total_espera;
-    // int total_recursos_utilizados_karts;
-    // int total_recursos_utilizados_capacetes;
 } Kartodromo;
 
 void inicializa_kartodromo(Kartodromo *k);
