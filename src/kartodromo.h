@@ -19,12 +19,12 @@ typedef struct {
     int capacetes_disponiveis;
     pthread_mutex_t mutex_karts;
     pthread_mutex_t mutex_capacetes;
+    pthread_mutex_t mutex_tempo_espera;
     pthread_cond_t cond_karts;
     pthread_cond_t cond_capacetes;
     int total_recursos_utilizados_karts;
     int total_recursos_utilizados_capacetes;
-    // int total_clientes_atendidos;
-    // int total_espera;
+    int tempo_total_espera;
 } Kartodromo;
 
 void inicializa_kartodromo(Kartodromo *k);

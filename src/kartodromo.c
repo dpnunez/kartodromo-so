@@ -9,11 +9,11 @@ void inicializa_kartodromo(Kartodromo *k) {
     k->capacetes_disponiveis = NUM_CAPACETES;
     pthread_mutex_init(&k->mutex_karts, NULL);
     pthread_mutex_init(&k->mutex_capacetes, NULL);
+    pthread_mutex_init(&k->mutex_tempo_espera, NULL);
     pthread_cond_init(&k->cond_karts, NULL);
     pthread_cond_init(&k->cond_capacetes, NULL);
 
-    // k->total_clientes_atendidos = 0;
-    // k->total_espera = 0;
+    k->tempo_total_espera = 0;
     k->total_recursos_utilizados_karts = 0;
     k->total_recursos_utilizados_capacetes = 0;
 }
@@ -28,9 +28,16 @@ void destroi_kartodromo(Kartodromo *k) {
 void imprime_kartodromo(Kartodromo *k) {
     printf("\n\n\nKartódromo:\n");
     printf("Disponíveis: Karts: %d, Capacetes: %d\n", k->karts_disponiveis, k->capacetes_disponiveis);
-    // printf("Total de clientes atendidos: %d\n", k->total_clientes_atendidos);
+    printf("Total de clientes atendidos: %d\n", k->total_recursos_utilizados_karts);
     printf("Total de recursos utilizados (Karts): %d\n", k->total_recursos_utilizados_karts);
     printf("Total de recursos utilizados (Capacetes): %d\n", k->total_recursos_utilizados_capacetes);
+    if (k->total_recursos_utilizados_karts > 0) {
+        printf("Tempo total de espera: %d horas\n", k->tempo_total_espera);
+        double media_tempo_espera = (double)k->tempo_total_espera / k->total_recursos_utilizados_karts;
+        printf("Média de tempo de espera: %.2lf horas\n", media_tempo_espera);
+    } else {
+        printf("Média de tempo de espera: N/A\n");
+    }
 }
 
 typedef struct {
@@ -51,7 +58,7 @@ void *piloto_thread(void *arg) {
     if (piloto->idade < 18) {
         // toDo: como fazer prioridade das crianças de 14?
         // https://stackoverflow.com/questions/11666610/how-to-give-priority-to-privileged-thread-in-mutex-locking
-        // Crianças pegam primeiro capacete
+
         pthread_mutex_lock(&kartodromo->mutex_capacetes);
         while (kartodromo->capacetes_disponiveis == 0) {
             pthread_cond_wait(&kartodromo->cond_capacetes, &kartodromo->mutex_capacetes); 
@@ -96,8 +103,8 @@ void *piloto_thread(void *arg) {
     // 1s = 1h
     time_t saida = time(NULL);
 
-    time_t tempo_espera = saida - chegada;
-    printf("Tempo de espera do piloto %s: %ld horas\n", piloto->nome, tempo_espera);
+    int tempo_espera = (int)difftime(saida, chegada);
+    printf("Tempo de espera do piloto %s: %d horas\n", piloto->nome, tempo_espera);
     printf("VRUUUUUUM Piloto %s, idade: %d está na pista!\n", piloto->nome, piloto->idade);
 
     // Devolver capacete
@@ -112,6 +119,10 @@ void *piloto_thread(void *arg) {
     pthread_cond_signal(&kartodromo->cond_karts); // sinaliza que tem kart disponivel (comunica com cond_wait)
     pthread_mutex_unlock(&kartodromo->mutex_karts);
 
+    // Incrementar tempo total de espera
+    pthread_mutex_lock(&kartodromo->mutex_tempo_espera);
+    kartodromo->tempo_total_espera += tempo_espera;
+    pthread_mutex_unlock(&kartodromo->mutex_tempo_espera);
 
     // todo: armazenar tempo de espera e tempo de corrida
     printf("Piloto %s, idade: %d saiu da pista!\n", piloto->nome, piloto->idade);
