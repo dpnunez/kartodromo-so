@@ -98,7 +98,6 @@ void *piloto_thread(void *arg) {
     }
 
 
-    // todo: Como relacionar esse tempo com as 8h diarias?
     sleep(rand() % 2 + 1);
     // 1s = 1h
     time_t saida = time(NULL);
