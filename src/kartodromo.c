@@ -13,6 +13,7 @@ void inicializa_kartodromo(Kartodromo *k) {
     pthread_cond_init(&k->cond_karts, NULL);
     pthread_cond_init(&k->cond_capacetes, NULL);
 
+    k->criancas_menores_14 = 0;
     k->tempo_total_espera = 0;
     k->total_recursos_utilizados_karts = 0;
     k->total_recursos_utilizados_capacetes = 0;
@@ -53,20 +54,32 @@ void *piloto_thread(void *arg) {
 
     time_t chegada = time(NULL);
 
-    printf("Piloto %s, idade: %d está tentando pegar um kart e capacete.\n", piloto->nome, piloto->idade);
+    printf("Piloto %s, idade: %d chegou ao kartódromo.\n", piloto->nome, piloto->idade);
 
     if (piloto->idade < 18) {
-        // toDo: como fazer prioridade das crianças de 14?
-        // https://stackoverflow.com/questions/11666610/how-to-give-priority-to-privileged-thread-in-mutex-locking
+        // Crianças menores de 14 têm prioridade na escolha do capacete
+        //         Se o piloto tem menos de 14 anos, incrementa kartodromo->criancas_menores_14 e verifica se há capacetes disponíveis ou se outras crianças menores de 14 anos também estão esperando. Se sim, o piloto espera até que seja a sua vez.
 
+        //          Crianças entre 14 e 18 anos só pegam capacetes quando as crianças menores de 14 anos não estão na fila de espera.
         pthread_mutex_lock(&kartodromo->mutex_capacetes);
-        while (kartodromo->capacetes_disponiveis == 0) {
-            pthread_cond_wait(&kartodromo->cond_capacetes, &kartodromo->mutex_capacetes); 
-            // Evita deadlocks ja que libera o recurso de capacete caso nao tenham disponiveis
-            // unlock o mutex e só volta a lockar quando o recurso estiver disponivel (com o signal)
+        if (piloto->idade < 14) {
+            kartodromo->criancas_menores_14++;
+            while (kartodromo->capacetes_disponiveis == 0) {
+                pthread_cond_wait(&kartodromo->cond_capacetes, &kartodromo->mutex_capacetes);
+            }
+        } else {
+            while (kartodromo->capacetes_disponiveis == 0 || kartodromo->criancas_menores_14 > 0) {
+                pthread_cond_wait(&kartodromo->cond_capacetes, &kartodromo->mutex_capacetes);
+            }
         }
+
+        printf("Piloto %s, idade: %d pegou um capacete.\n", piloto->nome, piloto->idade);
         kartodromo->capacetes_disponiveis--;
         kartodromo->total_recursos_utilizados_capacetes++;
+
+        if (piloto->idade < 14) {
+            kartodromo->criancas_menores_14--;
+        }
         pthread_mutex_unlock(&kartodromo->mutex_capacetes);
 
         // Agora pegar kart
@@ -92,11 +105,12 @@ void *piloto_thread(void *arg) {
         while (kartodromo->capacetes_disponiveis == 0) {
             pthread_cond_wait(&kartodromo->cond_capacetes, &kartodromo->mutex_capacetes);
         }
+
+        printf("Piloto %s, idade: %d pegou um capacete.\n", piloto->nome, piloto->idade);
         kartodromo->capacetes_disponiveis--;
         kartodromo->total_recursos_utilizados_capacetes++;
         pthread_mutex_unlock(&kartodromo->mutex_capacetes);
     }
-
 
     sleep(rand() % 2 + 1);
     // 1s = 1h

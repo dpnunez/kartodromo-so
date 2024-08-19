@@ -25,6 +25,7 @@ typedef struct {
     int total_recursos_utilizados_karts;
     int total_recursos_utilizados_capacetes;
     int tempo_total_espera;
+    int criancas_menores_14;
 } Kartodromo;
 
 void inicializa_kartodromo(Kartodromo *k);
