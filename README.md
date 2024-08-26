@@ -1,5 +1,11 @@
 # Simulação do Kartódromo Parallel Speed
 
+## Como rodar
+
+> basta executar o script run.sh
+
+---
+
 Kartódromos são instalações projetadas para a prática de kart, um tipo de corrida automobilística em miniatura. Esses locais possuem pistas asfaltadas ou de concreto, com variados formatos e comprimentos, proporcionando uma experiência desafiadora e emocionante para pilotos de todas as idades e níveis de habilidade. Além das pistas, os kartódromos oferecem áreas de apoio como boxes, manutenção, aluguel de karts e equipamentos de segurança, como capacetes.
 
 O Kartódromo Parallel Speed solicitou seu auxílio para desenvolver um sistema que simule a distribuição dos recursos de **aluguel de karts** e **equipamentos de segurança (capacetes)** para clientes em datas especiais. Nessas ocasiões, o fluxo de pilotos aumenta, e a empresa deseja estabelecer prioridades específicas para atender os clientes.
